@@ -15,7 +15,7 @@ def generate_model():
 
     model = models.Sequential()
 
-    model.add(Conv2D(32, (5, 5), input_shape=(1, 28, 28), activation='relu', bias_initializer='RandomNormal'))
+    model.add(Conv2D(32, (5, 5), input_shape=(28, 28, 1), activation='relu', bias_initializer='RandomNormal'))
     model.add(MaxPooling2D((2, 2)))
     model.add(Conv2D(128, (5, 5), activation='relu'))
     model.add(MaxPooling2D((2, 2)))
@@ -41,7 +41,7 @@ def scrape_data():
 
     # create labels and data
     training_labels = to_categorical(train.ix[:, 0], 10)
-    training_data = train.ix[:, 1:].values.reshape(train.shape[0], 1, 28, 28).astype(float)
+    training_data = train.ix[:, 1:].values.reshape(train.shape[0], 28, 28, 1).astype(float)
     training_data = (25.5 + 0.8 * training_data) / 255
     testing_data = test.values.astype('float32')
 
@@ -64,10 +64,14 @@ train_data = np.load('saved-files/train_data.npy')
 train_labels = np.load('saved-files/train_labels.npy')
 test_data = np.load('saved-files/test_data.npy')
 
+print(train_data.shape)
+print(train_labels.shape)
+print(test_data.shape)
+
 model = generate_model()
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-history = model.fit(test_data, train_labels, validation_split=0.1, epochs=3, batch_size=512)
+history = model.fit(train_data, train_labels, validation_split=0.1, epochs=3, batch_size=512)
 
 plot_model(model, to_file='model.png', show_shapes=True)
 
